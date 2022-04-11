@@ -1,12 +1,13 @@
 import './style.css';
 
 //step 9
-
+interface Prenotazioni {nome:string,posto:Array<any>}
 class teatro {
   buttonLog = document.getElementById('log');
   parPlatea = document.getElementById('parPlatea');
   parPalchi = document.getElementById('parPalchi');
   parNomi = document.getElementById('parNomi');
+  prenotazioni:Array<string>;//i valori deriveranno da Ajax json
   constructor(elem1, elem2) {
     this.prenotazioni = [];
     this.zona1 = elem1[0];
