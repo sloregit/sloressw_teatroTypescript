@@ -1,0 +1,21 @@
+h1,
+h2 {
+  font-family: Lato;
+}
+#nomi {
+  border: 1px solid black;
+  /*dimensioni in pixel, da cambiare in futuro*/
+  height: 20px;
+  width: 200px;
+}
+
+.posto:hover {
+  background-color: lightblue;
+}
+
+.prenotato {
+  background-color: red;
+}
+.libero {
+  background-color: turquoise;
+}
