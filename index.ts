@@ -1,13 +1,14 @@
 import './style.css';
 import { fromEvent, Observable, Subscriber } from 'rxjs';
 import { ajax, AjaxResponse, AjaxRequest, AjaxError } from 'rxjs/ajax';
+import { of, pipe } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 // Import stylesheets
 import './style.css';
+
+///Chiave: 0ef3f513
 //step 9
-interface Prenotazioni {
-  nome: string;
-  posto: Array<any>;
-}
+
 class teatro {
   buttonLog = document.getElementById('log');
   parPlatea = document.getElementById('parPlatea');
