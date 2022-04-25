@@ -1,29 +1,73 @@
 import './style.css';
 import { fromEvent, Observable, Subscriber } from 'rxjs';
 import { ajax, AjaxResponse, AjaxRequest, AjaxError } from 'rxjs/ajax';
-import { of, pipe } from 'rxjs';
+import { of, pipe, from } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 // Import stylesheets
 import './style.css';
 
 ///Chiave: 0ef3f513
+const Key: string = '0ef3f513';
+const URL: string =
+  'https://eu-central-1.aws.data.mongodb-api.com/app/kvaas-giwjg/endpoint/';
+
 //step 9
+var prenotazioni = [];
+//Il pulsante GET teatro
+const getTeatroButton: HTMLElement = document.getElementById('getValue');
+const ButtonGet$: Observable<Event> = fromEvent(getTeatroButton, 'click');
+ButtonGet$.subscribe({
+  next: () => getTeatro(Key),
+  error: (err: AjaxError) => {
+    console.log(err);
+  },
+  complete: () => {},
+});
+
+//la funzione chiamata genera
+function getTeatro(key) {
+  const GetValue$: Observable<AjaxResponse<string>> = ajax({
+    url: URL + 'get?key=' + key,
+    crossDomain: true,
+    method: 'GET',
+  });
+  GetValue$.subscribe({
+    next: (res: AjaxResponse<any>) => {
+      prenotazioni = JSON.parse(res.response);
+      //const a = new teatro(['platea', 10, 10], ['palco', 4, 6]);
+      const ok = new teatro(prenotazioni['platea'], prenotazioni['palco']);
+      console.log(ok);
+    },
+    error: (err) => {
+      console.log(err);
+    },
+    complete: () => {},
+  });
+}
 
 class teatro {
   buttonLog = document.getElementById('log');
   parPlatea = document.getElementById('parPlatea');
   parPalchi = document.getElementById('parPalchi');
   parNomi = document.getElementById('parNomi');
-  prenotazioni: Array<string>; //i valori deriveranno da Ajax json
+  prenotazioni: Array<string> = prenotazioni; //i valori deriveranno da Ajax json
+  zona1: String;
+  zona2: String;
+  filePlatea: number;
+  postiPlatea: number;
+  filePalco: number;
+  postiPalco: number;
+  Teatro: object;
   constructor(elem1, elem2) {
-    this.prenotazioni = [];
-    this.zona1 = elem1[0];
-    this.filePlatea = elem1[1];
-    this.postiPlatea = elem1[2];
-    this.zona2 = elem2[0];
-    this.filePalco = elem2[1];
-    this.postiPalco = elem2[2];
-    this.teatro = {
+    //elem1 == 'platea'
+    this.prenotazioni = prenotazioni;
+    this.zona1 = 'platea';
+    this.filePlatea = elem1.length;
+    this.postiPlatea = elem1[0].length;
+    this.zona2 = 'palco';
+    this.filePalco = elem2.length;
+    this.postiPalco = elem2[0].length;
+    this.Teatro = {
       platea: Array(this.filePlatea)
         .fill('filaPlatea')
         .map(() =>
@@ -43,17 +87,6 @@ class teatro {
             })
         ),
     };
-    //possibilità di aggiungere prenotazioni da input esterno
-    this.assegnaPosto = function (zona, nome, fila, posto) {
-      if (zona === 'platea') {
-        this.teatro.platea[fila - 1][posto - 1].style.backgroundColor = 'red';
-        return (this.teatro.platea[fila - 1][posto - 1].value = nome);
-      }
-      if (zona === 'palco') {
-        this.teatro.palco[fila - 1][posto - 1].style.backgroundColor = 'red';
-        return (this.teatro.palco[fila - 1][posto - 1].value = nome);
-      }
-    };
     //inserisce i valori dei pulsanti, posto.value in un array
     this.toArray = function () {
       return (this.prenotazioni = [
@@ -63,6 +96,8 @@ class teatro {
     };
   }
 }
+
+
 //aggiunge i pulsanti: posto
 function addBtn(nome, LFila, posto, zona) {
   let showNome = document.createElement('button');
@@ -104,7 +139,8 @@ function vediPrenotazioni() {
   console.log(a.toArray());
 }
 
-const a = new teatro(['platea', 10, 10], ['palco', 4, 6]);
-a.assegnaPosto('platea', 'Dylan', 2, 3); //aggiunta da input esterno
-a.assegnaPosto('palco', 'Bloch', 1, 5);
-a.buttonLog.addEventListener('click', vediPrenotazioni);
+//const a = new teatro(['platea', 10, 10], ['palco', 4, 6]);
+
+//a.buttonLog.addEventListener('click', vediPrenotazioni);
+/*a.assegnaPosto('platea', 'Dylan', 2, 3); //aggiunta da input esterno
+a.assegnaPosto('palco', 'Bloch', 1, 5); */
