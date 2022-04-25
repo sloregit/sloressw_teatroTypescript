@@ -1,5 +1,8 @@
 import './style.css';
-
+import { fromEvent, Observable, Subscriber } from 'rxjs';
+import { ajax, AjaxResponse, AjaxRequest, AjaxError } from 'rxjs/ajax';
+// Import stylesheets
+import './style.css';
 //step 9
 interface Prenotazioni {
   nome: string;
