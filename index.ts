@@ -33,8 +33,11 @@ function getTeatro(key) {
   });
   GetValue$.subscribe({
     next: (res: AjaxResponse<any>) => {
+      //console.log(res.response);
       prenotazioni = JSON.parse(res.response);
-      console.log(res.response);
+      const p = from([prenotazioni]).pipe(map((val) => val));
+      p.subscribe((val) => console.log(val));
+      console.log(prenotazioni);
       //const a = new teatro(['platea', 10, 10], ['palco', 4, 6]);
       const ok = new teatro(prenotazioni['platea'], prenotazioni['palco']);
     },
@@ -57,7 +60,7 @@ class teatro {
   postiPlatea: number;
   filePalco: number;
   postiPalco: number;
-  platea: object;
+  platea: Observable;
   palco: object;
   constructor(elem1, elem2) {
     //elem1 == 'platea'
@@ -68,7 +71,8 @@ class teatro {
     this.zona2 = 'palco';
     this.filePalco = elem2.length;
     this.postiPalco = elem2[0].length;
-    this.platea = prenotazioni['platea'];
+    this.platea = from(prenotazioni['platea']).pipe(map((val) => val));
+    this.platea.subscribe((val) => val.map((val,i) => addBtn(val,i)));
     /*{
       platea: Array(this.filePlatea)
         .fill('filaPlatea')
@@ -171,3 +175,4 @@ function vediPrenotazioni() {
 //a.buttonLog.addEventListener('click', vediPrenotazioni);
 /*a.assegnaPosto('platea', 'Dylan', 2, 3); //aggiunta da input esterno
 a.assegnaPosto('palco', 'Bloch', 1, 5); */
+//window.onload = getTeatro(Key);
