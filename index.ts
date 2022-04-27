@@ -37,9 +37,6 @@ function getTeatro(key) {
     next: (res: AjaxResponse<any>) => {
       //console.log(res.response);
       prenotazioni = JSON.parse(res.response);
-      const p = from([prenotazioni]).pipe(map((val) => val));
-      p.subscribe((val) => console.log(val));
-      console.log(prenotazioni);
       //const a = new teatro(['platea', 10, 10], ['palco', 4, 6]);
       const ok = new teatro(prenotazioni['platea'], prenotazioni['palco']);
     },
@@ -55,6 +52,7 @@ class teatro {
   parPlatea = document.getElementById('parPlatea');
   parPalchi = document.getElementById('parPalchi');
   parNomi = document.getElementById('parNomi');
+  nomePrenotazione = document.getElementById('nomePrenotazione');
   prenotazioni: Array<string> = prenotazioni; //i valori deriveranno da Ajax json
   zona1: String;
   zona2: String;
@@ -111,18 +109,35 @@ function mostraNome2(e: Event) {
   }
   parNomi.innerHTML = this.value;*/
 }
-function mostraNome(e: Event) {
-  if (e.target.value) {
-    //se il posto è libero
-    if (e.target.value == 'x') {
-      console.log(e.target.value);
-    } else if (e.target.value != 'x') {
-      alert('il posto è già prenotato');
-    }
+
+var selezionato = [];
+function Selezionato(elem) {
+  if (selezionato.length == 0) {
+    selezionato.push(elem);
+    elem.classList.add('selezionato');
+  } else if (selezionato.length >= 1 || selezionato[0] != elem) {
+    selezionato[0].classList.remove('selezionato');
+    selezionato.pop();
+    Selezionato(elem);
   }
-  parNomi.innerHTML = e.target.value;
+  return true;
 }
 
+function mostraNome(e: Event) {
+  if (Selezionato(e.target)) {
+    if (nomePrenotazione.value) {
+      //////////////////////////////////////////////////////////
+
+      if (e.target.value == 'x') {
+        console.log(e.target.value);
+      } else if (e.target.value != 'x') {
+        parNomi.innerHTML = 'Il posto è gia prenotato';
+        //alert('il posto è già prenotato');
+      }
+    }
+    parNomi.innerHTML = e.target.value;
+  }
+}
 //aggiunge i pulsanti: posto
 function addBtn(nome, LFila, posto, zona) {
   let showNome = document.createElement('button');
@@ -139,16 +154,12 @@ function addBtn(nome, LFila, posto, zona) {
     showNome.className = 'postiPalco';
     posto + 1 >= LFila ? parPalchi.appendChild(aCapo) : '';
   }
-  showNome.value = nome != undefined ? nome : ''; // x sicurezza
+  showNome.value = nome != undefined ? nome : '';
   showNome.className = nome != 'x' ? 'prenotato' : 'libero';
   //showNome.addEventListener('click', mostraNome);
   const ButtonPosto$: Observable<Event> = fromEvent(showNome, 'click');
   ButtonPosto$.subscribe({
     next: (val) => mostraNome(val),
-    /*error: (err: AjaxError) => {
-      console.log(err);
-    },
-    complete: () => {},*/
   });
 
   return showNome;

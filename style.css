@@ -2,10 +2,9 @@ h1,
 h2 {
   font-family: Lato;
 }
-#nomi {
-  border: 1px solid black;
+#parNomi {
   /*dimensioni in pixel, da cambiare in futuro*/
-  height: 20px;
+  height: 10px;
   width: 200px;
 }
 
@@ -18,4 +17,7 @@ h2 {
 }
 .libero {
   background-color: turquoise;
+}
+.selezionato {
+  background-color: darkslategrey;
 }
