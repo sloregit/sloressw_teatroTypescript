@@ -14,6 +14,7 @@ const URL: string =
 //step 9
 var prenotazioni = [];
 //Il pulsante GET teatro
+/*
 const getTeatroButton: HTMLElement = document.getElementById('getValue');
 const ButtonGet$: Observable<Event> = fromEvent(getTeatroButton, 'click');
 ButtonGet$.subscribe({
@@ -23,7 +24,7 @@ ButtonGet$.subscribe({
   },
   complete: () => {},
 });
-
+*/
 //la funzione chiamata genera
 function getTeatro(key) {
   const GetValue$: Observable<AjaxResponse<string>> = ajax({
@@ -31,6 +32,7 @@ function getTeatro(key) {
     crossDomain: true,
     method: 'GET',
   });
+
   GetValue$.subscribe({
     next: (res: AjaxResponse<any>) => {
       //console.log(res.response);
@@ -61,7 +63,7 @@ class teatro {
   filePalco: number;
   postiPalco: number;
   platea: Observable;
-  palco: object;
+  palco: Observable;
   constructor(elem1, elem2) {
     //elem1 == 'platea'
     this.prenotazioni = prenotazioni;
@@ -71,31 +73,17 @@ class teatro {
     this.zona2 = 'palco';
     this.filePalco = elem2.length;
     this.postiPalco = elem2[0].length;
-    this.platea = from(prenotazioni['platea']).pipe(map((val) => val));
-    this.platea.subscribe((val) => val.map((val,i) => addBtn(val,i)));
-    /*{
-      platea: Array(this.filePlatea)
-        .fill('filaPlatea')
-        .map(() =>
-          Array(this.postiPlatea)
-            .fill('x')
-            .map((val, posto) => {
-              return addBtn(val, this.postiPlatea, posto, this.zona1);
-            })
-        ),
-    }),*/
-    this.palco = prenotazioni['palco'];
-    /*{
-        palco: Array(this.filePalco)
-          .fill('filaPlatea')
-          .map(() =>
-            Array(this.postiPalco)
-              .fill('x')
-              .map((val, posto) => {
-                return addBtn(val, this.postiPalco, posto, this.zona2);
-              })
-          ),
-      });*/
+    this.platea = from(prenotazioni['platea'])
+      .pipe(map((val) => val))
+      .subscribe((val) =>
+        val.map((val, i) => addBtn(val, this.postiPlatea, i, this.zona1))
+      );
+    this.palco = from(prenotazioni['palco'])
+      .pipe(map((val) => val))
+      .subscribe((val) =>
+        val.map((val, i) => addBtn(val, this.postiPalco, i, this.zona2))
+      );
+
     //inserisce i valori dei pulsanti, posto.value in un array
     this.toArray = function () {
       return (this.prenotazioni = [
@@ -107,7 +95,7 @@ class teatro {
 }
 
 //mostra il nome relativo alla prenotazione, posto.value
-function mostraNome(e: Event) {
+function mostraNome2(e: Event) {
   console.log(e);
   /*
   //se c'è un nome nel campo inserimento
@@ -123,7 +111,7 @@ function mostraNome(e: Event) {
   }
   parNomi.innerHTML = this.value;*/
 }
-function mostraNome2(e: Event) {
+function mostraNome(e: Event) {
   if (e.target.value) {
     //se il posto è libero
     if (e.target.value == 'x') {
@@ -134,6 +122,7 @@ function mostraNome2(e: Event) {
   }
   parNomi.innerHTML = e.target.value;
 }
+
 //aggiunge i pulsanti: posto
 function addBtn(nome, LFila, posto, zona) {
   let showNome = document.createElement('button');
@@ -155,7 +144,7 @@ function addBtn(nome, LFila, posto, zona) {
   //showNome.addEventListener('click', mostraNome);
   const ButtonPosto$: Observable<Event> = fromEvent(showNome, 'click');
   ButtonPosto$.subscribe({
-    next: (val) => mostraNome2(val),
+    next: (val) => mostraNome(val),
     /*error: (err: AjaxError) => {
       console.log(err);
     },
@@ -175,4 +164,4 @@ function vediPrenotazioni() {
 //a.buttonLog.addEventListener('click', vediPrenotazioni);
 /*a.assegnaPosto('platea', 'Dylan', 2, 3); //aggiunta da input esterno
 a.assegnaPosto('palco', 'Bloch', 1, 5); */
-//window.onload = getTeatro(Key);
+window.onload = getTeatro(Key);
