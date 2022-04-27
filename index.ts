@@ -36,7 +36,6 @@ function getTeatro(key) {
       prenotazioni = JSON.parse(res.response);
       //const a = new teatro(['platea', 10, 10], ['palco', 4, 6]);
       const ok = new teatro(prenotazioni['platea'], prenotazioni['palco']);
-      console.log(ok);
     },
     error: (err) => {
       console.log(err);
@@ -57,7 +56,8 @@ class teatro {
   postiPlatea: number;
   filePalco: number;
   postiPalco: number;
-  Teatro: object;
+  platea: object;
+  palco: object;
   constructor(elem1, elem2) {
     //elem1 == 'platea'
     this.prenotazioni = prenotazioni;
@@ -67,7 +67,7 @@ class teatro {
     this.zona2 = 'palco';
     this.filePalco = elem2.length;
     this.postiPalco = elem2[0].length;
-    this.Teatro = {
+    (this.platea = {
       platea: Array(this.filePlatea)
         .fill('filaPlatea')
         .map(() =>
@@ -77,16 +77,18 @@ class teatro {
               return addBtn(val, this.postiPlatea, posto, this.zona1);
             })
         ),
-      palco: Array(this.filePalco)
-        .fill('filaPlatea')
-        .map(() =>
-          Array(this.postiPalco)
-            .fill('x')
-            .map((val, posto) => {
-              return addBtn(val, this.postiPalco, posto, this.zona2);
-            })
-        ),
-    };
+    }),
+      (this.palco = {
+        palco: Array(this.filePalco)
+          .fill('filaPlatea')
+          .map(() =>
+            Array(this.postiPalco)
+              .fill('x')
+              .map((val, posto) => {
+                return addBtn(val, this.postiPalco, posto, this.zona2);
+              })
+          ),
+      });
     //inserisce i valori dei pulsanti, posto.value in un array
     this.toArray = function () {
       return (this.prenotazioni = [
@@ -97,7 +99,34 @@ class teatro {
   }
 }
 
-
+//mostra il nome relativo alla prenotazione, posto.value
+function mostraNome(e: Event) {
+  console.log(e);
+  /*
+  //se c'è un nome nel campo inserimento
+  if (prenotazione.value) {
+    //se il posto è libero
+    if (this.value == 'x') {
+      this.value = prenotazione.value;
+      this.style.backgroundColor = 'red';
+      prenotazione.value = '';
+    } else if (this.value != 'x') {
+      alert('il posto è già prenotato');
+    }
+  }
+  parNomi.innerHTML = this.value;*/
+}
+function mostraNome2(e: Event) {
+  if (e.target.value) {
+    //se il posto è libero
+    if (e.target.value == 'x') {
+      console.log(e.target.value);
+    } else if (e.target.value != 'x') {
+      alert('il posto è già prenotato');
+    }
+  }
+  parNomi.innerHTML = e.target.value;
+}
 //aggiunge i pulsanti: posto
 function addBtn(nome, LFila, posto, zona) {
   let showNome = document.createElement('button');
@@ -116,24 +145,19 @@ function addBtn(nome, LFila, posto, zona) {
   }
   showNome.value = nome != undefined ? nome : ''; // x sicurezza
   showNome.className = nome != 'x' ? 'prenotato' : 'libero';
-  showNome.addEventListener('click', mostraNome);
+  //showNome.addEventListener('click', mostraNome);
+  const ButtonPosto$: Observable<Event> = fromEvent(showNome, 'click');
+  ButtonPosto$.subscribe({
+    next: (val) => mostraNome2(val),
+    /*error: (err: AjaxError) => {
+      console.log(err);
+    },
+    complete: () => {},*/
+  });
+
   return showNome;
 }
-//mostra il nome relativo alla prenotazione, posto.value
-function mostraNome() {
-  //se c'è un nome nel campo inserimento
-  if (prenotazione.value) {
-    //se il posto è libero
-    if (this.value == 'x') {
-      this.value = prenotazione.value;
-      this.style.backgroundColor = 'red';
-      prenotazione.value = '';
-    } else if (this.value != 'x') {
-      alert('il posto è già prenotato');
-    }
-  }
-  parNomi.innerHTML = this.value;
-}
+
 //mostra il log completo delle prenotazioni
 function vediPrenotazioni() {
   console.log(a.toArray());
