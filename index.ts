@@ -34,6 +34,7 @@ function getTeatro(key) {
   GetValue$.subscribe({
     next: (res: AjaxResponse<any>) => {
       prenotazioni = JSON.parse(res.response);
+      console.log(res.response);
       //const a = new teatro(['platea', 10, 10], ['palco', 4, 6]);
       const ok = new teatro(prenotazioni['platea'], prenotazioni['palco']);
     },
@@ -67,7 +68,8 @@ class teatro {
     this.zona2 = 'palco';
     this.filePalco = elem2.length;
     this.postiPalco = elem2[0].length;
-    (this.platea = {
+    this.platea = prenotazioni['platea'];
+    /*{
       platea: Array(this.filePlatea)
         .fill('filaPlatea')
         .map(() =>
@@ -77,8 +79,9 @@ class teatro {
               return addBtn(val, this.postiPlatea, posto, this.zona1);
             })
         ),
-    }),
-      (this.palco = {
+    }),*/
+    this.palco = prenotazioni['palco'];
+    /*{
         palco: Array(this.filePalco)
           .fill('filaPlatea')
           .map(() =>
@@ -88,7 +91,7 @@ class teatro {
                 return addBtn(val, this.postiPalco, posto, this.zona2);
               })
           ),
-      });
+      });*/
     //inserisce i valori dei pulsanti, posto.value in un array
     this.toArray = function () {
       return (this.prenotazioni = [
