@@ -21,3 +21,10 @@ h2 {
 .selezionato {
   background-color: darkslategrey;
 }
+
+.nonVisibile {
+  display: none;
+}
+.visibile {
+  display: block;
+}
