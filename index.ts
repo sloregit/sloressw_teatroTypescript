@@ -154,7 +154,7 @@ function addBtn(nome, LFila, posto, zona) {
     showNome.className = 'postiPalco';
     posto + 1 >= LFila ? parPalchi.appendChild(aCapo) : '';
   }
-  showNome.value = nome != undefined ? nome : '';
+  showNome.value = nome != undefined ? nome : 'x';
   showNome.className = nome != 'x' ? 'prenotato' : 'libero';
   //showNome.addEventListener('click', mostraNome);
   const ButtonPosto$: Observable<Event> = fromEvent(showNome, 'click');
