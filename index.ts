@@ -89,12 +89,19 @@ class teatro {
       .subscribe((val) =>
         val.map((val, i) => new Pulsante(val, this.postiPalco, i, this.zona2))
       );
-
+    this.aggiornaPrenotazioni = function(nome){
+      console.log(nome)
+    }
     //inserisce i valori dei pulsanti, posto.value in un array
     this.toArray = function () {
+      //console.log(this.platea);
       return (this.prenotazioni = [
-        this.platea.map((fila) => fila.map((posto) => posto.value)),
-        this.palco.map((fila) => fila.map((posto) => posto.value)),
+        this.prenotazioni['platea'].map((fila) =>
+          fila.map((posto) => posto.value)
+        ),
+        this.prenotazioni['palco'].map((fila) =>
+          fila.map((posto) => posto.value)
+        ),
         console.log(this.prenotazioni),
       ]);
     };
@@ -113,7 +120,7 @@ class Pulsante {
           //conferma.classList.remove('nonVisibile');
           //==> qui va Conferma()
           event.target.value = nomePrenotazione.value;
-          myTeatro.toArray();
+          super aggiornaPrenotazioni(nomePrenotazione.value);
           console.log(myTeatro);
           nomePrenotazione.value = '';
           event.target.style.backgroundColor = 'red';
