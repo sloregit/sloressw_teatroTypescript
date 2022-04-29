@@ -93,22 +93,16 @@ class teatro {
   }
 }
 
-/*
-this.aggiornaPrenotazioni = function () {
-      //console.log(this.platea);
-      return (
-        (this.prenotazioni = {
-          platea: this.prenotazioni['platea'].map((fila) =>
-            fila.map((posto) => posto)
-          ),
-          palco: this.prenotazioni['palco'].map((fila) =>
-            fila.map((posto) => posto)
-          ),
-        }),
-        console.log(this.prenotazioni)
-      );
-    }; 
-*/
+function aggiornaPrenotazioni() {
+  /* return (
+    (prenotazioni = {
+      platea: prenotazioni['platea'].map((fila) => fila.map((posto) => posto)),
+      palco: prenotazioni['palco'].map((fila) => fila.map((posto) => posto)),
+    }),
+    console.log(prenotazioni)
+  );*/
+}
+
 function confermaPrenotazione(e: Event) {
   console.log(libero);
   if (libero) {
@@ -116,6 +110,7 @@ function confermaPrenotazione(e: Event) {
       selezionato[0].value = nomePrenotazione.value;
       selezionato[0].style.backgroundColor = 'red';
       console.log(selezionato[0]);
+      aggiornaPrenotazioni();
     }
   }
   nomePrenotazione.value = '';
