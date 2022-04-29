@@ -61,7 +61,6 @@ function getPrenotazioni(key) {
 }
 
 class teatro {
-  prenotazioni: Array<string> = prenotazioni; //i valori deriveranno da Ajax json
   zona1: String;
   zona2: String;
   filePlatea: number;
@@ -69,12 +68,11 @@ class teatro {
   filePalco: number;
   postiPalco: number;
   platea: Observable;
-  palco: Observable;.
+  palco: Observable;
   aggiornaPrenotazioni;
   conferma;
   constructor(elem1, elem2) {
     //elem1 == 'platea'
-    this.prenotazioni = prenotazioni;
     this.zona1 = 'platea';
     this.filePlatea = elem1.length;
     this.postiPlatea = elem1[0].length;
@@ -92,66 +90,66 @@ class teatro {
         val.map((val, i) => new Pulsante(val, this.postiPalco, i, this.zona2))
       );
     //inserisce i valori dei pulsanti, posto.value in un array
-    this.aggiornaPrenotazioni = function () {
+  }
+}
+
+/*
+this.aggiornaPrenotazioni = function () {
       //console.log(this.platea);
       return (
         (this.prenotazioni = {
           platea: this.prenotazioni['platea'].map((fila) =>
-            fila.map((posto) => posto.value)
+            fila.map((posto) => posto)
           ),
           palco: this.prenotazioni['palco'].map((fila) =>
-            fila.map((posto) => posto.value)
+            fila.map((posto) => posto)
           ),
         }),
         console.log(this.prenotazioni)
       );
-    };
-    this.conferma = fromEvent(conferma, 'click');
-    this.conferma.subscribe({
-      next: () => this.aggiornaPrenotazioni,
-      error: (err: AjaxError) => {
-        console.log(err + 'pulsante');
-      },
-      complete: () => {},
-    });
+    }; 
+*/
+function confermaPrenotazione(e: Event) {
+  console.log(libero);
+  if (libero) {
+    if (nomePrenotazione.value) {
+      selezionato[0].value = nomePrenotazione.value;
+      selezionato[0].style.backgroundColor = 'red';
+      console.log(selezionato[0]);
+    }
   }
+  nomePrenotazione.value = '';
 }
-
+function Selezionato(elem) {
+  if (selezionato.length == 0) {
+    selezionato.push(elem);
+    elem.classList.add('selezionato');
+  } else if (selezionato.length >= 1 || selezionato[0] != elem) {
+    selezionato[0].classList.remove('selezionato');
+    selezionato.pop();
+    Selezionato(elem);
+  }
+  return true;
+}
+var libero = false;
 class Pulsante {
   pulsante: HTMLElement;
   aCapo: HTMLElement;
   mostraNome(event: Event) {
-    if (this.selezionato(event.target)) {
-      //se c'è un nome nel campo inserimento
-      if (nomePrenotazione.value) {
-        //se il posto è libero
-        if (event.target.value == 'x') {
-          //conferma.classList.remove('nonVisibile');
-          //==> qui va Conferma()
-          event.target.value = nomePrenotazione.value;
-          console.log(myTeatro);
-          nomePrenotazione.value = '';
-          event.target.style.backgroundColor = 'red';
-          console.log(event.target.value);
-        } else if (event.target.value != 'x') {
-          parNomi.innerHTML = 'Il posto è gia prenotato';
-          //alert('il posto è già prenotato');
-        }
+    if (Selezionato(event.target)) {
+      //se il posto è libero
+      if (event.target.value == 'x') {
+        libero = true;
+      } else if (event.target.value != 'x') {
+        libero = false;
+        parNomi.innerHTML = 'Il posto è gia prenotato';
+        //alert('il posto è già prenotato');
       }
+
       parNomi.innerHTML = event.target.value;
     }
   }
-  selezionato(elem: HTMLElement) {
-    if (selezionato.length == 0) {
-      selezionato.push(elem);
-      elem.classList.add('selezionato');
-    } else if (selezionato.length >= 1 || selezionato[0] != elem) {
-      selezionato[0].classList.remove('selezionato');
-      selezionato.pop();
-      this.selezionato(elem);
-    }
-    return true;
-  }
+
   constructor(nome, LFila, posto, zona) {
     this.pulsante = document.createElement('button');
     this.aCapo = document.createElement('br');
@@ -168,14 +166,19 @@ class Pulsante {
     this.pulsante.className = nome != 'x' ? 'prenotato' : 'libero';
     const ButtonPosto$: Observable<Event> = fromEvent(this.pulsante, 'click');
     ButtonPosto$.subscribe({
-      next: (val) => this.mostraNome(val),
+      next: (e) => this.mostraNome(e),
     });
   }
 }
 
+const ButtonConferma$: Observable<Event> = fromEvent(conferma, 'click');
+ButtonConferma$.subscribe({
+  next: (e) => confermaPrenotazione(e),
+});
+
 //Il pulsante SET
 
-function confermaPrenotazione() {
+function confermaPrenotazione2() {
   const ButtonConferma$: Observable<Event> = fromEvent(conferma, 'click');
   ButtonConferma$.subscribe({
     next: () => insertValue(prenotazioni, inputKey.value),
