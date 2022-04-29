@@ -69,7 +69,9 @@ class teatro {
   filePalco: number;
   postiPalco: number;
   platea: Observable;
-  palco: Observable;
+  palco: Observable;.
+  aggiornaPrenotazioni;
+  conferma;
   constructor(elem1, elem2) {
     //elem1 == 'platea'
     this.prenotazioni = prenotazioni;
@@ -89,22 +91,29 @@ class teatro {
       .subscribe((val) =>
         val.map((val, i) => new Pulsante(val, this.postiPalco, i, this.zona2))
       );
-    this.aggiornaPrenotazioni = function(nome){
-      console.log(nome)
-    }
     //inserisce i valori dei pulsanti, posto.value in un array
-    this.toArray = function () {
+    this.aggiornaPrenotazioni = function () {
       //console.log(this.platea);
-      return (this.prenotazioni = [
-        this.prenotazioni['platea'].map((fila) =>
-          fila.map((posto) => posto.value)
-        ),
-        this.prenotazioni['palco'].map((fila) =>
-          fila.map((posto) => posto.value)
-        ),
-        console.log(this.prenotazioni),
-      ]);
+      return (
+        (this.prenotazioni = {
+          platea: this.prenotazioni['platea'].map((fila) =>
+            fila.map((posto) => posto.value)
+          ),
+          palco: this.prenotazioni['palco'].map((fila) =>
+            fila.map((posto) => posto.value)
+          ),
+        }),
+        console.log(this.prenotazioni)
+      );
     };
+    this.conferma = fromEvent(conferma, 'click');
+    this.conferma.subscribe({
+      next: () => this.aggiornaPrenotazioni,
+      error: (err: AjaxError) => {
+        console.log(err + 'pulsante');
+      },
+      complete: () => {},
+    });
   }
 }
 
@@ -120,7 +129,6 @@ class Pulsante {
           //conferma.classList.remove('nonVisibile');
           //==> qui va Conferma()
           event.target.value = nomePrenotazione.value;
-          super aggiornaPrenotazioni(nomePrenotazione.value);
           console.log(myTeatro);
           nomePrenotazione.value = '';
           event.target.style.backgroundColor = 'red';
