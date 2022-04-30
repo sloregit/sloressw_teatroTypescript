@@ -2,7 +2,7 @@ import './style.css';
 import { fromEvent, Observable, Subscriber } from 'rxjs';
 import { ajax, AjaxResponse, AjaxRequest, AjaxError } from 'rxjs/ajax';
 import { of, pipe, from } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
+import { filter, map, scan } from 'rxjs/operators';
 // Import stylesheets
 import './style.css';
 
@@ -57,18 +57,23 @@ class Platea extends Teatro {
   file = this.filePlatea;
   posti = this.postiPlatea;
   prenotazioni: Array<string>;
+  prenotazione_temp: Prenotazione;
   constructor(prenotazioni) {
     super(); //obbligatorio
     //console.log('Platea:');
     //console.log(prenotazioni);
     from(prenotazioni)
-      .pipe(map((val, i) => from(val).pipe(map())))
-      .subscribe((x) => console.log(x));
+      .pipe(map((nomi, fila) => [{ nomi, fila }])) // array nomi + numero fila
+      .subscribe(([{ nomi, fila }]) =>
+        from([{ nomi, fila }])
+          .pipe(map((nomi) => nomi))
+          .subscribe((nomi) => console.log(nomi))
+      );
     //console.log('PlateaREfactored:');
     //console.log(prenotazioni);
   }
 }
-
+//Pulsante[nome,fila,posto]
 class Palco extends Teatro {
   file = this.filePalco;
   posti = this.postiPalco;
@@ -81,11 +86,12 @@ class Palco extends Teatro {
 }
 class Pulsante {
   etichetta: string;
-  valore: Prenotazione;
+  prenotazione_Pulsante: Prenotazione;
   posizione: Array<number>;
   shownome(elem) {
     //visualizza Prenotazione:nome
   }
+  constructor(prenotazione_Pulsante) {}
 }
 interface Prenotazione {
   nome: string;
