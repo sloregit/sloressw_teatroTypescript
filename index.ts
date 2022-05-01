@@ -1,7 +1,7 @@
 import './style.css';
 import { fromEvent, Observable, Subscriber } from 'rxjs';
 import { ajax, AjaxResponse, AjaxRequest, AjaxError } from 'rxjs/ajax';
-import { of, pipe, from } from 'rxjs';
+import { of, pipe, from, toArray } from 'rxjs';
 import { filter, map, scan } from 'rxjs/operators';
 // Import stylesheets
 import './style.css';
@@ -12,7 +12,6 @@ const URL: string =
   'https://eu-central-1.aws.data.mongodb-api.com/app/kvaas-giwjg/endpoint/';
 
 //Variabili globali
-var prenotazioni;
 var selezionato = [];
 var myTeatro: Object;
 //Elementi HTML globali
@@ -23,54 +22,43 @@ const parNomi = document.getElementById('parNomi');
 const nomePrenotazione = document.getElementById('nomePrenotazione');
 const buttonConferma = document.getElementById('conferma');
 //
-
-function getPrenotazioni(key) {
-  const GetPrenotazioni$: Observable<AjaxResponse<string>> = ajax({
+class Data {
+  key: string;
+  GetPrenotazioni$: Observable<AjaxResponse<string>> = ajax({
     url: URL + 'get?key=' + key,
     crossDomain: true,
     method: 'GET',
   });
-  GetPrenotazioni$.subscribe({
-    next: (res: AjaxResponse<string>) => {
-      //console.log(res.response);
-      const prenotazioniIn = JSON.parse(res.response);
-      let platea = new Platea(prenotazioniIn['platea']);
-      //let palco = new Palco(prenotazioniIn['palco']);
-    },
-    error: (err) => {
-      console.log(err);
-    },
-    complete: () => {},
-  });
+  constructor(key) {
+    this.key = key;
+  }
 }
 
-interface prenotazioni {}
 class Teatro {
   filePlatea: number;
   postiPlatea: number;
   filePalco: number;
   postiPalco: number;
+  Prenotazioni$ = new Data(Key);
   aggiornaPrenotazioni;
   conferma;
 }
-class Platea extends Teatro {
+class Zona extends Teatro {
   file = this.filePlatea;
   posti = this.postiPlatea;
-  prenotazioni: Array<string>;
+  prenotazioni$ = this.Prenotazioni$;
   prenotazione_temp: Prenotazione;
-  constructor(prenotazioni) {
+  constructor() {
     super(); //obbligatorio
-    //console.log('Platea:');
-    //console.log(prenotazioni);
-    from(prenotazioni)
-      .pipe(map((nomi, fila) => [{ nomi, fila }])) // array nomi + numero fila
-      .subscribe(([{ nomi, fila }]) =>
-        from([{ nomi, fila }])
-          .pipe(map((nomi) => nomi))
-          .subscribe((nomi) => console.log(nomi))
-      );
-    //console.log('PlateaREfactored:');
-    //console.log(prenotazioni);
+    this.prenotazioni$.GetPrenotazioni$.subscribe({
+      next: (res: AjaxResponse<string>) => {
+        let p = JSON.parse(res.response);
+      },
+      error: (err) => {
+        console.log(err);
+      },
+      complete: () => {},
+    });
   }
 }
 //Pulsante[nome,fila,posto]
@@ -99,4 +87,4 @@ interface Prenotazione {
   posto: number;
 }
 
-window.onload = getPrenotazioni(Key);
+window.onload = new Zona(); //getPrenotazioni(Key);
