@@ -5,7 +5,7 @@ import { of, pipe, from, toArray } from 'rxjs';
 import { filter, map, scan } from 'rxjs/operators';
 // Import stylesheets
 import './style.css';
-   
+
 ///Chiave: 0ef3f513
 const Key: string = '0ef3f513';
 const URL: string =
@@ -22,42 +22,52 @@ const parNomi = document.getElementById('parNomi');
 const nomePrenotazione = document.getElementById('nomePrenotazione');
 const buttonConferma = document.getElementById('conferma');
 //
-class Data {
+class RichiestaDati {
   key: string;
   GetPrenotazioni$: Observable<AjaxResponse<string>> = ajax({
     url: URL + 'get?key=' + key,
     crossDomain: true,
     method: 'GET',
   });
+  SetPrenotazioni$: Observable<AjaxResponse<string>> = ajax({
+    url: URL + 'set?key=' + key,
+    crossDomain: true,
+    method: 'POST',
+    body: 'Inserito', //per ora
+  });
   constructor(key) {
     this.key = key;
   }
 }
-
+class Prenotazione {
+  dati$ = new RichiestaDati(Key);
+  file;
+  posti;
+  constructor() {
+    this.dati$.GetPrenotazioni$.subscribe({
+      next: (res: AjaxResponse<string>) => {
+        const prenotazioni = JSON.parse(res.response);
+      },
+    });
+  }
+}
 class Teatro {
-  filePlatea: number;
-  postiPlatea: number;
-  filePalco: number;
-  postiPalco: number;
-  Prenotazioni$ = new Data(Key);
+  prenotazioni$ = new RichiestaDati(Key);
+  genera = function () {};
   aggiornaPrenotazioni;
   conferma;
 }
+
 class Zona extends Teatro {
-  file = this.filePlatea;
-  posti = this.postiPlatea;
-  prenotazioni$ = this.Prenotazioni$;
+  prenotazioni$ = this.prenotazioni$;
   prenotazione_temp: Prenotazione;
+  platea;
   constructor() {
     super(); //obbligatorio
     this.prenotazioni$.GetPrenotazioni$.subscribe({
       next: (res: AjaxResponse<string>) => {
-        let p = JSON.parse(res.response);
+        JSON.parse(res.response);
       },
-      error: (err) => {
-        console.log(err);
-      },
-      complete: () => {},
     });
   }
 }
