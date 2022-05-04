@@ -5,7 +5,7 @@ import { of, pipe, from, toArray } from 'rxjs';
 import { filter, map, scan } from 'rxjs/operators';
 // Import stylesheets
 import './style.css';
-
+   
 ///Chiave: 0ef3f513
 const Key: string = '0ef3f513';
 const URL: string =
