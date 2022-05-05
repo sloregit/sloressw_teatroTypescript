@@ -131,9 +131,14 @@ function gestore(chiaveAccesso) {
   //L'array è di valori NON di Pulsanti!!!!!!!!!!!!!sveglia
   function aggiornaPrenotazioni() {
     const newPrenotazioni: Object = {
-      platea: teatro.platea,
-      palco: teatro.palco,
+      platea: teatro.platea.map((fila) =>
+        fila.map((posto) => posto.pulsante.value)
+      ),
+      palco: teatro.palco.map((fila) =>
+        fila.map((posto) => posto.pulsante.value)
+      ),
     };
+    console.log(newPrenotazioni);
     const prenotazioniAggiornate$: Observable<AjaxResponse<string>> =
       new RichiestaDati(chiaveAccesso, newPrenotazioni).SetPrenotazioni$;
     prenotazioniAggiornate$.subscribe({
