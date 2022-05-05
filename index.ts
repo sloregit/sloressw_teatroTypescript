@@ -8,6 +8,7 @@ import './style.css';
 
 class RichiestaDati {
   key: string;
+  prenotazioni: object;
   GetPrenotazioni$: Observable<AjaxResponse<string>> = ajax({
     url: URL + 'get?key=' + key,
     crossDomain: true,
@@ -17,13 +18,14 @@ class RichiestaDati {
     url: URL + 'set?key=' + key,
     crossDomain: true,
     method: 'POST',
-    body: 'Inserito', //per ora
+    body: prenotazioni, //per ora
   });
-  constructor(key) {
+  constructor(key, prenotazioni?) {
     this.key = key;
+    this.prenotazioni = prenotazioni;
   }
 }
- 
+
 class Teatro {
   filePlatea: number;
   postiPlatea: number;
@@ -39,22 +41,21 @@ class Teatro {
         this.postiPlatea = prenotazioni.platea[0].length;
         this.filePalco = prenotazioni.palco.length;
         this.postiPalco = prenotazioni.palco[0].length;
-        this.platea = prenotazioni.platea.map((fila) => {
-          fila.map((val, posto) => {
-             new Pulsante(val, this.postiPlatea, posto, 'platea');
-             return val
-          });
-        });
-        this.palco = prenotazioni.palco.map((fila) => {
-          fila.map((val, posto) => {
-            return new Pulsante(val, this.postiPalco, posto, 'palco');
-          });
-        });
+        this.platea = prenotazioni.platea.map((fila) =>
+          fila.map(
+            (val, posto) => new Pulsante(val, this.postiPlatea, posto, 'platea')
+          )
+        );
+
+        this.palco = prenotazioni.palco.map((fila) =>
+          fila.map(
+            (val, posto) => new Pulsante(val, this.postiPalco, posto, 'palco')
+          )
+        );
       },
     });
   }
 }
-
 function Selezionato(elem) {
   if (selezionato.length == 0) {
     selezionato.push(elem);
@@ -108,9 +109,10 @@ class Pulsante {
 function gestore(chiaveAccesso) {
   const conferma: HTMLElement = document.getElementById('conferma');
   const input: HTMLElement = document.getElementById('inputNome');
-  const prenotazione: Object = new RichiestaDati(chiaveAccesso)
-    .GetPrenotazioni$;
-  const teatro = new Teatro(prenotazione);
+  const prenotazione$: Observable<AjaxResponse<string>> = new RichiestaDati(
+    chiaveAccesso
+  ).GetPrenotazioni$;
+  const teatro: Object = new Teatro(prenotazione$);
   conferma.addEventListener('click', confermaPrenotazione);
   function confermaPrenotazione() {
     if (selezionato[0] != undefined) {
@@ -119,6 +121,7 @@ function gestore(chiaveAccesso) {
         if (input.value) {
           selezionato[0].value = input.value;
           selezionato[0].style.backgroundColor = 'red';
+          parNomi.innerHTML = selezionato[0].value;
           aggiornaPrenotazioni();
         }
       }
@@ -126,7 +129,15 @@ function gestore(chiaveAccesso) {
     }
   }
   function aggiornaPrenotazioni() {
-    console.log(teatro);
+    const newPrenotazioni: Object = {
+      platea: teatro.platea,
+      palco: teatro.palco,
+    };
+    const prenotazioniAggiornate$: Observable<AjaxResponse<string>> =
+      new RichiestaDati(chiaveAccesso, newPrenotazioni).SetPrenotazioni$;
+    prenotazioniAggiornate$.subscribe({
+      next: () => {},
+    });
   }
 }
 
@@ -136,12 +147,12 @@ const URL: string =
   'https://eu-central-1.aws.data.mongodb-api.com/app/kvaas-giwjg/endpoint/';
 
 //Variabili globali
-var selezionato = [];
-var Postolibero = false;
+var selezionato: string[] = [];
+var Postolibero: boolean = false;
 //Elementi HTML globali
-const buttonLog = document.getElementById('log');
-const parPlatea = document.getElementById('parPlatea');
-const parPalchi = document.getElementById('parPalchi');
-const parNomi = document.getElementById('parNomi');
+const buttonLog: HTMLElement = document.getElementById('log');
+const parPlatea: HTMLElement = document.getElementById('parPlatea');
+const parPalchi: HTMLElement = document.getElementById('parPalchi');
+const parNomi: HTMLElement = document.getElementById('parNomi');
 //
 window.onload = gestore(Key); //getPrenotazioni(Key);
