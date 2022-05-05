@@ -128,6 +128,7 @@ function gestore(chiaveAccesso) {
       input.value = '';
     }
   }
+  //L'array è di valori NON di Pulsanti!!!!!!!!!!!!!sveglia
   function aggiornaPrenotazioni() {
     const newPrenotazioni: Object = {
       platea: teatro.platea,
@@ -136,7 +137,13 @@ function gestore(chiaveAccesso) {
     const prenotazioniAggiornate$: Observable<AjaxResponse<string>> =
       new RichiestaDati(chiaveAccesso, newPrenotazioni).SetPrenotazioni$;
     prenotazioniAggiornate$.subscribe({
-      next: () => {},
+      next: (res) => {
+        parNomi.innerHTML = res.response;
+      },
+      error: (err: AjaxError) => {
+        console.log(err);
+      },
+      complete: () => {},
     });
   }
 }
