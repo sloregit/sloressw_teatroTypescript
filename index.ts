@@ -23,7 +23,7 @@ class RichiestaDati {
     this.key = key;
   }
 }
-
+ 
 class Teatro {
   filePlatea: number;
   postiPlatea: number;
