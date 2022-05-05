@@ -6,22 +6,6 @@ import { filter, map, scan } from 'rxjs/operators';
 // Import stylesheets
 import './style.css';
 
-///Chiave: 0ef3f513
-const Key: string = '0ef3f513';
-const URL: string =
-  'https://eu-central-1.aws.data.mongodb-api.com/app/kvaas-giwjg/endpoint/';
-
-//Variabili globali
-var selezionato = [];
-var myTeatro: Object;
-//Elementi HTML globali
-const buttonLog = document.getElementById('log');
-const parPlatea = document.getElementById('parPlatea');
-const parPalchi = document.getElementById('parPalchi');
-const parNomi = document.getElementById('parNomi');
-const nomePrenotazione = document.getElementById('nomePrenotazione');
-const buttonConferma = document.getElementById('conferma');
-//
 class RichiestaDati {
   key: string;
   GetPrenotazioni$: Observable<AjaxResponse<string>> = ajax({
@@ -40,18 +24,6 @@ class RichiestaDati {
   }
 }
 
-class Prenotazione {
-  dati$ = new RichiestaDati(Key);
-  constructor() {
-    this.dati$.GetPrenotazioni$.subscribe({
-      next: (res: AjaxResponse<string>) => {
-        const prenotazioni = JSON.parse(res.response);
-        new Teatro(prenotazioni.platea, prenotazioni.palco);
-      },
-    });
-  }
-}
-
 class Teatro {
   filePlatea: number;
   postiPlatea: number;
@@ -59,50 +31,30 @@ class Teatro {
   postiPalco: number;
   platea: Array<any>;
   palco: Array<any>;
-  aggiornaPrenotazioni;
-  conferma;
-  constructor(elem1: Array<string>, elem2: Array<string>) {
-    //elem1 == 'platea'
-    this.filePlatea = elem1.length;
-    this.postiPlatea = elem1[0].length;
-    this.filePalco = elem2.length;
-    this.postiPalco = elem2[0].length;
-    this.platea = Array(this.filePlatea)
-      .fill('filaPlatea')
-      .map(() =>
-        Array(this.postiPlatea)
-          .fill('x')
-          .map((val, posto) => {
-            return new Pulsante(val, this.postiPlatea, posto, 'platea');
-          })
-      );
-    this.palco = Array(this.filePlatea)
-      .fill('filaPalco')
-      .map(() =>
-        Array(this.postiPlatea)
-          .fill('x')
-          .map((val, posto) => {
-            return new Pulsante(val, this.postiPlatea, posto, 'palco');
-          })
-      );
-    //inserisce i valori dei pulsanti, posto.value in un array
+  constructor(elem1) {
+    elem1.subscribe({
+      next: (res: AjaxResponse<string>) => {
+        const prenotazioni = JSON.parse(res.response);
+        this.filePlatea = prenotazioni.platea.length;
+        this.postiPlatea = prenotazioni.platea[0].length;
+        this.filePalco = prenotazioni.palco.length;
+        this.postiPalco = prenotazioni.palco[0].length;
+        this.platea = prenotazioni.platea.map((fila) => {
+          fila.map((val, posto) => {
+             new Pulsante(val, this.postiPlatea, posto, 'platea');
+             return val
+          });
+        });
+        this.palco = prenotazioni.palco.map((fila) => {
+          fila.map((val, posto) => {
+            return new Pulsante(val, this.postiPalco, posto, 'palco');
+          });
+        });
+      },
+    });
   }
 }
 
-//Pulsante[nome,fila,posto]
-
-function confermaPrenotazione(e: Event) {
-  console.log(libero);
-  if (libero) {
-    if (nomePrenotazione.value) {
-      selezionato[0].value = nomePrenotazione.value;
-      selezionato[0].style.backgroundColor = 'red';
-      console.log(selezionato[0]);
-      aggiornaPrenotazioni();
-    }
-  }
-  nomePrenotazione.value = '';
-}
 function Selezionato(elem) {
   if (selezionato.length == 0) {
     selezionato.push(elem);
@@ -115,44 +67,30 @@ function Selezionato(elem) {
   return true;
 }
 
-/*
-  class Pulsante {
-  etichetta: string;
-  prenotazione_Pulsante: Prenotazione;
-  posizione: Array<number>;
-  shownome(elem) {
-    //visualizza Prenotazione:nome
-  }
-  constructor(prenotazione_Pulsante) {}
-}
-*/
-
-var libero = false;
 class Pulsante {
   pulsante: HTMLElement;
-  etichetta: HTMLElement;
+  etichetta: Node;
+  value: string;
   aCapo: HTMLElement;
-  mostraNome(event: Event) {
-    if (Selezionato(event.target)) {
+  mostraNome() {
+    if (Selezionato(this)) {
       //se il posto è libero
-      if (event.target.value == 'x') {
-        libero = true;
-      } else if (event.target.value != 'x') {
-        libero = false;
+      if (this.value == 'x') {
+        Postolibero = true;
+      } else if (this.value != 'x') {
+        Postolibero = false;
         parNomi.innerHTML = 'Il posto è gia prenotato';
         //alert('il posto è già prenotato');
       }
-      parNomi.innerHTML = event.target.value;
+      parNomi.innerHTML = this.value;
     }
   }
   constructor(nome, LFila, posto, zona) {
     this.pulsante = document.createElement('button');
-    this.etichetta = document.createElement('p');
-    this.etichetta.classList.add('P_etichetta');
-    this.etichetta.innerHTML = 'P' + (posto + 1);
+    this.etichetta = document.createTextNode('');
+    this.etichetta.textContent = 'P' + (posto + 1);
     this.pulsante.appendChild(this.etichetta);
     this.aCapo = document.createElement('br');
-
     if (zona === 'platea') {
       parPlatea.appendChild(this.pulsante);
       posto + 1 >= LFila ? parPlatea.appendChild(this.aCapo) : '';
@@ -163,22 +101,47 @@ class Pulsante {
     }
     this.pulsante.value = nome != undefined ? nome : 'x';
     this.pulsante.className = nome != 'x' ? 'prenotato' : 'libero';
-    const ButtonPosto$: Observable<Event> = fromEvent(this.pulsante, 'click');
-    ButtonPosto$.subscribe({
-      next: (e) => this.mostraNome(e),
-    });
+    this.pulsante.addEventListener('click', this.mostraNome);
   }
 }
 
-const ButtonConferma$: Observable<Event> = fromEvent(conferma, 'click');
-ButtonConferma$.subscribe({
-  next: (e) => confermaPrenotazione(e),
-});
-
-interface Prenotazione {
-  nome: string;
-  fila: number;
-  posto: number;
+function gestore(chiaveAccesso) {
+  const conferma: HTMLElement = document.getElementById('conferma');
+  const input: HTMLElement = document.getElementById('inputNome');
+  const prenotazione: Object = new RichiestaDati(chiaveAccesso)
+    .GetPrenotazioni$;
+  const teatro = new Teatro(prenotazione);
+  conferma.addEventListener('click', confermaPrenotazione);
+  function confermaPrenotazione() {
+    if (selezionato[0] != undefined) {
+      //selezionato[0].value = input.value;
+      if (Postolibero) {
+        if (input.value) {
+          selezionato[0].value = input.value;
+          selezionato[0].style.backgroundColor = 'red';
+          aggiornaPrenotazioni();
+        }
+      }
+      input.value = '';
+    }
+  }
+  function aggiornaPrenotazioni() {
+    console.log(teatro);
+  }
 }
 
-window.onload = new Prenotazione(); //getPrenotazioni(Key);
+///Chiave: 0ef3f513
+const Key: string = '0ef3f513';
+const URL: string =
+  'https://eu-central-1.aws.data.mongodb-api.com/app/kvaas-giwjg/endpoint/';
+
+//Variabili globali
+var selezionato = [];
+var Postolibero = false;
+//Elementi HTML globali
+const buttonLog = document.getElementById('log');
+const parPlatea = document.getElementById('parPlatea');
+const parPalchi = document.getElementById('parPalchi');
+const parNomi = document.getElementById('parNomi');
+//
+window.onload = gestore(Key); //getPrenotazioni(Key);
