@@ -56,7 +56,7 @@ class Teatro {
     });
   }
 }
-function Selezionato(elem) {
+function Selezionato(elem: HTMLElement) {
   if (selezionato.length == 0) {
     selezionato.push(elem);
     elem.classList.add('selezionato');
@@ -124,11 +124,12 @@ function gestore(chiaveAccesso) {
           parNomi.innerHTML = selezionato[0].value;
           aggiornaPrenotazioni();
         }
+      } else {
+        alert('il Posto è già stato prenotato');
       }
       input.value = '';
     }
   }
-  //L'array è di valori NON di Pulsanti!!!!!!!!!!!!!sveglia
   function aggiornaPrenotazioni() {
     const newPrenotazioni: Object = {
       platea: teatro.platea.map((fila) =>
@@ -153,13 +154,13 @@ function gestore(chiaveAccesso) {
   }
 }
 
+//Globali
 ///Chiave: 0ef3f513
 const Key: string = '0ef3f513';
 const URL: string =
   'https://eu-central-1.aws.data.mongodb-api.com/app/kvaas-giwjg/endpoint/';
-
-//Variabili globali
-var selezionato: string[] = [];
+//Variabili
+var selezionato: HTMLElement[] = [];
 var Postolibero: boolean = false;
 //Elementi HTML globali
 const buttonLog: HTMLElement = document.getElementById('log');
