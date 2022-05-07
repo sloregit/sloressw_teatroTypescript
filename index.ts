@@ -123,17 +123,29 @@ class Pulsante {
 
 function gestore(chiaveAccesso: string) {
   try {
-    const conferma: HTMLElement = document.getElementById('conferma');
     const input: HTMLElement = document.getElementById('inputNome');
+    const conferma: HTMLElement = document.getElementById('conferma');
+    conferma.addEventListener('click', confermaPrenotazione);
+    const annulla: HTMLElement = document.getElementById('annulla');
+    annulla.addEventListener('click', annullaPrenotazione);
     const prenotazione$: Observable<AjaxResponse<string>> = new RichiestaDati(
       chiaveAccesso
     ).GetPrenotazioni$;
     const teatro: Object = new Teatro(prenotazione$);
-    conferma.addEventListener('click', confermaPrenotazione);
+    function annullaPrenotazione() {
+      try {
+        input.value = '';
+      } catch (e) {
+        console.error(
+          'errore in: gestore.annullaPrenotazione',
+          e.message,
+          e.name
+        );
+      }
+    }
     function confermaPrenotazione() {
       try {
         if (selezionato[0] != undefined) {
-          //selezionato[0].value = input.value;
           if (Postolibero) {
             if (input.value) {
               selezionato[0].value = input.value;
@@ -197,7 +209,6 @@ const URL: string =
 var selezionato: HTMLElement[] = [];
 var Postolibero: boolean = false;
 //Elementi HTML globali
-const buttonLog: HTMLElement = document.getElementById('log');
 const parPlatea: HTMLElement = document.getElementById('parPlatea');
 const parPalchi: HTMLElement = document.getElementById('parPalchi');
 const parNomi: HTMLElement = document.getElementById('parNomi');
