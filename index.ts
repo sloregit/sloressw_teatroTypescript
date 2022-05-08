@@ -1,12 +1,19 @@
 import './style.css';
-import { fromEvent, Observable, Subscriber } from 'rxjs';
+import { ErrorNotification, fromEvent, Observable, Subscriber } from 'rxjs';
 import { ajax, AjaxResponse, AjaxRequest, AjaxError } from 'rxjs/ajax';
 // Import stylesheets
 import './style.css';
 
-class RichiestaDati {
+interface RichiestaDati {
   key: string;
-  prenotazioni: object;
+  prenotazioni: Object;
+  GetPrenotazioni$: Observable<AjaxResponse<string>>;
+  SetPrenotazioni$: Observable<AjaxResponse<string>>;
+}
+
+class generaDati implements RichiestaDati {
+  key: string;
+  prenotazioni: Object;
   GetPrenotazioni$: Observable<AjaxResponse<string>> = ajax({
     url: URL + 'get?key=' + key,
     crossDomain: true,
@@ -16,7 +23,7 @@ class RichiestaDati {
     url: URL + 'set?key=' + key,
     crossDomain: true,
     method: 'POST',
-    body: prenotazioni, //per ora
+    body: prenotazioni,
   });
   constructor(key, prenotazioni?) {
     this.key = key;
@@ -29,8 +36,8 @@ class Teatro {
   postiPlatea: number;
   filePalco: number;
   postiPalco: number;
-  platea: Array<any>;
-  palco: Array<any>;
+  platea: Array<Array<string>>;
+  palco: Array<Array<string>>;
   constructor(elem1: Observable<any>) {
     try {
       elem1.subscribe({
@@ -40,26 +47,27 @@ class Teatro {
           this.postiPlatea = prenotazioni.platea[0].length;
           this.filePalco = prenotazioni.palco.length;
           this.postiPalco = prenotazioni.palco[0].length;
-          this.platea = prenotazioni.platea.map((fila) =>
+          this.platea = prenotazioni.platea.map((fila: Array<string>) =>
             fila.map(
-              (val, posto) =>
+              (val: string, posto: number) =>
                 new Pulsante(val, this.postiPlatea, posto, 'platea')
             )
           );
 
-          this.palco = prenotazioni.palco.map((fila) =>
+          this.palco = prenotazioni.palco.map((fila: Array<string>) =>
             fila.map(
-              (val, posto) => new Pulsante(val, this.postiPalco, posto, 'palco')
+              (val: string, posto: number) =>
+                new Pulsante(val, this.postiPalco, posto, 'palco')
             )
           );
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       console.error('errore in: Teatro(constructor)', e.message, e.name);
     }
   }
 }
-function Selezionato(elem) {
+function Selezionato(elem: HTMLElement) {
   try {
     if (selezionato.length == 0) {
       selezionato.push(elem);
@@ -70,7 +78,7 @@ function Selezionato(elem) {
       Selezionato(elem);
     }
     return true;
-  } catch (e) {
+  } catch (e: any) {
     console.error('errore in: Selezionato', e.message, e.name);
   }
 }
@@ -93,11 +101,11 @@ class Pulsante {
         }
         parNomi.innerHTML = this.value;
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error('errore in: Pulsante.mostraNome', e.message, e.name);
     }
   }
-  constructor(nome, LFila, posto, zona) {
+  constructor(nome: string, LFila: number, posto: number, zona: string) {
     try {
       this.pulsante = document.createElement('button');
       this.etichetta = document.createTextNode('');
@@ -115,7 +123,7 @@ class Pulsante {
       this.pulsante.value = nome != undefined ? nome : 'x';
       this.pulsante.className = nome != 'x' ? 'prenotato' : 'libero';
       this.pulsante.addEventListener('click', this.mostraNome);
-    } catch (e) {
+    } catch (e: any) {
       console.error('errore in: Pulsante(constructor)', e.message, e.name);
     }
   }
@@ -128,14 +136,14 @@ function gestore(chiaveAccesso: string) {
     conferma.addEventListener('click', confermaPrenotazione);
     const annulla: HTMLElement = document.getElementById('annulla');
     annulla.addEventListener('click', annullaPrenotazione);
-    const prenotazione$: Observable<AjaxResponse<string>> = new RichiestaDati(
+    const prenotazione$: Observable<AjaxResponse<string>> = new generaDati(
       chiaveAccesso
     ).GetPrenotazioni$;
     const teatro: Object = new Teatro(prenotazione$);
     function annullaPrenotazione() {
       try {
         input.value = '';
-      } catch (e) {
+      } catch (e: any) {
         console.error(
           'errore in: gestore.annullaPrenotazione',
           e.message,
@@ -158,7 +166,7 @@ function gestore(chiaveAccesso: string) {
           }
           input.value = '';
         }
-      } catch (e) {
+      } catch (e: any) {
         console.error(
           'errore in: gestore.confermaPrenotazione',
           e.message,
@@ -166,20 +174,21 @@ function gestore(chiaveAccesso: string) {
         );
       }
     }
+
     function aggiornaPrenotazioni() {
       try {
         const newPrenotazioni: Object = {
-          platea: teatro.platea.map((fila) =>
-            fila.map((posto) => posto.pulsante.value)
+          platea: teatro.platea.map((fila: Array<HTMLElement>) =>
+            fila.map((posto: HTMLElement) => posto.pulsante.value)
           ),
-          palco: teatro.palco.map((fila) =>
-            fila.map((posto) => posto.pulsante.value)
+          palco: teatro.palco.map((fila: Array<HTMLElement>) =>
+            fila.map((posto: HTMLElement) => posto.pulsante.value)
           ),
         };
         const prenotazioniAggiornate$: Observable<AjaxResponse<string>> =
-          new RichiestaDati(chiaveAccesso, newPrenotazioni).SetPrenotazioni$;
+          new generaDati(chiaveAccesso, newPrenotazioni).SetPrenotazioni$;
         prenotazioniAggiornate$.subscribe({
-          next: (res) => {
+          next: (res: AjaxResponse<string>) => {
             parNomi.innerHTML = res.response;
           },
           error: (err: AjaxError) => {
@@ -187,7 +196,7 @@ function gestore(chiaveAccesso: string) {
           },
           complete: () => {},
         });
-      } catch (e) {
+      } catch (e: any) {
         console.error(
           'errore in: gestore.aggiornaPrenotazioni',
           e.message,
@@ -195,7 +204,7 @@ function gestore(chiaveAccesso: string) {
         );
       }
     }
-  } catch (e) {
+  } catch (e: any) {
     console.error('errore in: gestore', e.message, e.name);
   }
 }
@@ -206,7 +215,7 @@ const Key: string = '0ef3f513';
 const URL: string =
   'https://eu-central-1.aws.data.mongodb-api.com/app/kvaas-giwjg/endpoint/';
 //Variabili
-var selezionato: HTMLElement[] = [];
+var selezionato: Array<HTMLElement> = [];
 var Postolibero: boolean = false;
 //Elementi HTML globali
 const parPlatea: HTMLElement = document.getElementById('parPlatea');
