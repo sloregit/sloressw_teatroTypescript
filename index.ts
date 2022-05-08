@@ -53,7 +53,6 @@ class Teatro {
                 new Pulsante(val, this.postiPlatea, posto, 'platea')
             )
           );
-
           this.palco = prenotazioni.palco.map((fila: Array<string>) =>
             fila.map(
               (val: string, posto: number) =>
