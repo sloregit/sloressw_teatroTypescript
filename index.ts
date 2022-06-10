@@ -94,13 +94,13 @@ class teatro {
 }
 
 function aggiornaPrenotazioni() {
-  /* return (
+  return (
     (prenotazioni = {
       platea: prenotazioni['platea'].map((fila) => fila.map((posto) => posto)),
       palco: prenotazioni['palco'].map((fila) => fila.map((posto) => posto)),
     }),
     console.log(prenotazioni)
-  );*/
+  );
 }
 
 function confermaPrenotazione(e: Event) {
